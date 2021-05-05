@@ -1,0 +1,16 @@
+{%- assign first_page = pages[section.settings.tab_page_1_handle] -%}
+{%- assign second_page = pages[section.settings.tab_page_2_handle] -%}
+
+{%- if first_page.handle != blank or second_page.handle != blank -%}
+  {%- if first_page != empty -%}
+    <div>
+      {{- first_page.content -}}
+    </div>
+  {%- endif -%}
+
+  {%- if second_page != empty -%}
+    <div>
+      {{- second_page.content -}}
+    </div>
+  {%- endif -%}
+{%- endif -%}

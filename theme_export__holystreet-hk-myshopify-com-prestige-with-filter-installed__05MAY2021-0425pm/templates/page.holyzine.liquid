@@ -1,0 +1,152 @@
+<div id="section-custom-blog" class="Section" data-section-id="blog-template" data-section-type="article-list">
+  <div class="Blog">
+    <div class="Container">
+      <header class="PageHeader">
+        <div class="SectionHeader SectionHeader--center">
+          <h1 class="SectionHeader__Heading Heading u-h1">
+            {{- page.title -}}
+          </h1>
+        </div>
+      </header>
+
+      <div class="ArticleListWrapper">
+        {% for lk in linklists.blogs.links %}
+          {% assign bl = lk.object %}
+          {%- assign blog_name = bl.handle -%}
+          {%- assign article_list = blogs[blog_name] -%}
+
+          {% assign is_first_article_featured = false %}
+
+          {%- if current_tags == blank and article_list.articles.first.image and forloop.first -%}
+            {%- assign is_first_article_featured = true -%}
+          {%- endif -%}
+
+          {%- if forloop.first -%}
+          <div class="ArticleList {% if is_first_article_featured %}ArticleList--withFeatured{% endif %} Grid Grid--m">
+          {%- endif -%}
+
+            {%- for article in article_list.articles -%}
+              {%- if is_first_article_featured and forloop.first -%}
+                <div class="Grid__Cell hidden-phone">
+                  <div class="FlexboxIeFix">
+                    <div class="ImageHero ImageHero--small" style="background: url({{ article.image | img_url: '1x1', format: 'jpg' }})">
+                      <div class="ImageHero__ImageWrapper">
+                        <div class="ImageHero__Image Image--lazyLoad Image--zoomOut"
+                              data-optimumx="1.4"
+                              data-bgset="{{ article.image | img_url: mobile_size, crop: 'center' }} 750w, {{ article.image | img_url: '1000x' }} 1000w, {{ article.image | img_url: '1500x' }} 1500w">
+                        </div>
+
+                        <noscript>
+                          <div class="ImageHero__Image" style="background-image: url({{ article.image | img_url: '1000x' }})"></div>
+                        </noscript>
+                      </div>
+
+                      <div class="ImageHero__TextContent">
+                        <header class="SectionHeader">
+                          {%- if article.tags != empty -%}
+                            <span class="SectionHeader__SubHeading Heading u-h6">{{ article.tags.first }}</span>
+                          {%- endif -%}
+
+                          <h2 class="SectionHeader__Heading Heading u-h1">
+                            <a href="{{ article.url }}">{{ article.title }}</a>
+                          </h2>
+
+                          <div class="SectionHeader__ButtonWrapper">
+                            <a href="{{ article.url }}" class="Button Button--primary">{{ 'blog.article.read_more' | t }}</a>
+                          </div>
+                        </header>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {%- endif -%}
+
+              <div class="Grid__Cell {% if is_first_article_featured and forloop.first %}hidden-tablet-and-up{% else %}1/2--tablet 1/2--lap-and-up{% endif %}">
+                {%- render 'article-item', article: article -%}
+              </div>
+            {%- endfor -%}
+          {%- if forloop.last -%}
+          </div>
+          {%- endif -%}
+        {% endfor %}
+        <div class="Article_Sidebar">
+          <div class="ArticleItem__Sidebar">
+            <div class="ArticleTitle__Sidebar">{{ 'blog.article.latest_post' | t }}</div>
+            {%- assign index_latest = 0 -%}
+            {% for lk in linklists.blogs.links %}
+              {% assign bl = lk.object %}
+              {%- assign blog_name = bl.handle -%}
+              {%- assign article_list = blogs[blog_name] -%}
+              {%- if index_latest < 3 and index_latest != 0 -%}
+                {%- assign limit_latest = 3 -%}
+              {%- else -%}
+                {%- assign limit_latest = 3 - index_latest -%}
+              {%- endif -%}
+              {%- if index_latest < 3 -%}
+                {%- for article in article_list.articles limit: limit_latest -%}
+                  {% assign index_latest = index_latest | plus: 1 %}
+                  <div class="ArticleItem__Latest">
+                    {%- render 'article-item', article: article, is_latest: true -%}
+                  </div>
+                {%- endfor -%}
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+
+          <div class="ArticleItem__Sidebar">
+            <div class="ArticleTitle__Sidebar">{{ 'blog.article.categories' | t }}</div>
+            {% for link in linklists.blogs.links %}
+              {% assign bl = link.object %}
+              <div class="ArticleItem__Cat"><a href="/blogs/{{ bl.handle }}" class="Link">{{ bl.title }}</a></div>
+            {% endfor %}
+          </div>
+
+          <div class="ArticleItem__Sidebar">
+            <div class="ArticleTitle__Sidebar">{{ 'blog.article.tags' | t }}</div>
+            {% for lk in linklists.blogs.links %}
+              {% assign bl = lk.object %}
+              {%- assign blog_name = bl.handle -%}
+              {%- assign article_list = blogs[blog_name] -%}
+
+              {%- if article_list.all_tags.size > 0 -%}
+                {%- if forloop.first -%}
+                  <ul class="Blog__TagList HorizontalList HorizontalList--spacingExtraLoose">
+                {%- endif -%}
+                    {%- for tag in article_list.all_tags -%}
+                      <li class="HorizontalList__Item">
+                        <a href="/blogs/{{ article_list.handle }}/tagged/{{ tag | handle }}" class="Heading Link Link--primary Text--subdued u-h8 {% if current_tags contains tag %}is-active{% endif %}">{{ tag }}</a>
+                      </li>
+                    {%- endfor -%}
+                {%- if forloop.last -%}
+                  </ul>
+                {%- endif -%}
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  #section-custom-blog .ImageHero,
+  #section-custom-blog .ImageHero .Heading {
+    color: #ffffff;
+  }
+
+  #section-custom-blog .ImageHero .Button {
+    color: #1c1c1c;
+    border-color: #ffffff;
+  }
+
+  #section-custom-blog .ImageHero .Button::before {
+    background-color: #ffffff;
+  }
+
+  @media (-moz-touch-enabled: 0), (hover: hover) {
+    #section-custom-blog .ImageHero .Button:hover {
+      color: #ffffff;
+    }
+  }
+</style>
